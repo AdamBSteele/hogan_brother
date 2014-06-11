@@ -35,12 +35,14 @@ for status in reversed(sourceStatuses[0:5]):
 	dtime = datetime.datetime.strptime(strTime, '%a %b %d %H:%M:%S %Y')
 	time_diff = startTime - dtime
  
+ 	sText = status.get('text')
 	if time_diff.seconds < 180:
-		sText = status.get('text')
 		newTweet = re.sub('@', '', sText)
 		logging.info("Tweeting: " + newTweet)
 		t.statuses.update(status=newTweet)
 		tweetCount += 1
 		sleep(14)
 
-logging.info("Tweeted %d times" % tweetCount)
+logging.info("SOURCE: (" + str(datetime) + ")" + ": " + sText)
+if tweetCount > 0:
+	xlogging.info("Tweeted %d times" % tweetCount)
