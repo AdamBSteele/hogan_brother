@@ -5,11 +5,11 @@ import os
 import re
 from time import sleep
 
-
+keyfile = os.environ['KOTHPATH'] + 'keyfile.txt'
 
 # Get Oauth info from file
 Odict = {}
-lines = [line.strip() for line in open('/root/parrot/parrotBIN/keyfile.txt')]
+lines = [line.strip() for line in open(keyfile)]
 for line in lines:
 	key, value = tuple(line.split('='))
 	Odict[key] = value
@@ -34,7 +34,7 @@ if int(startTime.strftime('%H0%M')) < 3:
 
 # Grab statuses
 try:
-	sourceStatuses =  t.statuses.user_timeline(screen_name="jadekoth")
+	sourceStatuses =  t.statuses.user_timeline(screen_name=Odict['SN'])
 except Exception as e:
 	logging.info('ERR: ' + str(e))
 
@@ -54,9 +54,10 @@ for status in reversed(sourceStatuses[0:10]):
 	# Measure Tweet's age
 	tweet_age = startTime - dtime 	
 
-	if tweet_age.seconds < 180:
+	if tweet_age.seconds < 180 and dtime.day == startTime.day:
 		# Remove mention so that we're not annoyting (yet)
 		newTweet = str(re.sub('@', '', sText))
+		logging.info('Source time was: %s' % str(dtime))
 		logging.info("age=%3ss POST: \'%s\'" % (str(tweet_age.seconds), newTweet))
 		try:
 			t.statuses.update(status=newTweet)
