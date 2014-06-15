@@ -3,20 +3,20 @@ import logging
 import datetime
 import os
 import re
+from time import sleep
 
-now = datetime.datetime.now()
 
-Odict = {}
 # Get Oauth info from file
-lines = [line.strip() for line in open('keyfile.txt')]
+Odict = {}
+lines = [line.strip() for line in open('/root/parrot/parrotBIN/keyfile.txt')]
 for line in lines:
 	key, value = tuple(line.split('='))
 	Odict[key] = value
 
-
-
-logging.basicConfig(filename='/root/parrot/parrotBIN/logs/megaphone.log',
+# Initialize logging
+logging.basicConfig(filename='/root/parrot/parrotBIN/log.txt',
                     level=logging.INFO,
+                    datefmt='%H:%M:%S',
                     format='%(asctime)s: %(message)s')
 
 # Initialize twitter
@@ -24,25 +24,48 @@ t = Twitter(
             auth=OAuth(Odict['OTOKEN'], Odict['OSECRET'],
                        Odict['CONSKEY'], Odict['CONSSECRET'])
            )
+# Initialize time
 startTime = datetime.datetime.now()
 
-sourceStatuses =  t.statuses.user_timeline(screen_name="jadekoth")
+# If it's a new day, put day header in logs
+if int(startTime.strftime('%H0%M')) < 3:
+	logging.info(startTime.strftime('---   %b %d   ---'))
+
+# Grab statuses
+try:
+	sourceStatuses =  t.statuses.user_timeline(screen_name="hhoganbrother")
+except Exception as e:
+	logging.info('ERR: ' + str(e))
 
 tweetCount = 0
-for status in reversed(sourceStatuses[0:5]):
 
-	strTime = ' '.join(status.get('created_at').split(' ')[:4]) + ' ' + str(startTime.year)
-	dtime = datetime.datetime.strptime(strTime, '%a %b %d %H:%M:%S %Y')
-	time_diff = startTime - dtime
- 
+# Start from source's 10th oldest tweet and move to newest
+# Script runs every 3min, so this can handle ~1tweet/18s
+for status in reversed(sourceStatuses[0:10]):
+
+ 	# Grab text from tweet
  	sText = status.get('text')
-	if time_diff.seconds < 180:
-		newTweet = re.sub('@', '', sText)
-		logging.info("Tweeting: " + newTweet)
-		t.statuses.update(status=newTweet)
-		tweetCount += 1
-		sleep(14)
 
-logging.info("SOURCE: (" + str(datetime) + ")" + ": " + sText)
+	# Grab creation time from Twitter & remove UTC stuff that datetime doesn't like
+	strTime = ' '.join(status.get('created_at').split(' ')[:4]) + ' ' + str(startTime.year)
+	# Turn formatted Twitter time into date time object
+	dtime = datetime.datetime.strptime(strTime, '%a %b %d %H:%M:%S %Y')
+	# Measure Tweet's age
+	tweet_age = startTime - dtime 	
+
+	if tweet_age.seconds < 180:
+		# Remove mention so that we're not annoyting (yet)
+		newTweet = str(re.sub('@', '', sText))
+		logging.info("age=%3ss POST: \'%s\'" % (str(tweet_age.seconds), newTweet))
+		try:
+			t.statuses.update(status=newTweet)
+		except Exception as e:
+			logging.info('ERR: ' + str(e))
+		tweetCount = tweetCount + 1
+		sleep(18)
+		print sText
+
 if tweetCount > 0:
-	xlogging.info("Tweeted %d times" % tweetCount)
+	logging.info("Tweeted %d times" % tweetCount)
+else:
+	logging.info('age=' + str(tweet_age.seconds) + "s SKIP: " + sText)
