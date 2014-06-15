@@ -33,7 +33,7 @@ if int(startTime.strftime('%H0%M')) < 3:
 
 # Grab statuses
 try:
-	sourceStatuses =  t.statuses.user_timeline(screen_name="hhoganbrother")
+	sourceStatuses =  t.statuses.user_timeline(screen_name="jadekoth")
 except Exception as e:
 	logging.info('ERR: ' + str(e))
 
