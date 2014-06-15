@@ -6,6 +6,7 @@ import re
 from time import sleep
 
 keyfile = os.environ['KOTHPATH'] + 'keyfile.txt'
+logfile = os.environ['KOTHPATH'] + 'logfile.txt'
 
 # Get Oauth info from file
 Odict = {}
@@ -15,7 +16,7 @@ for line in lines:
 	Odict[key] = value
 
 # Initialize logging
-logging.basicConfig(filename='/root/parrot/parrotBIN/log.txt',
+logging.basicConfig(filename=logfile,
                     level=logging.INFO,
                     datefmt='%H:%M:%S',
                     format='%(asctime)s: %(message)s')
