@@ -15,6 +15,7 @@ logging.basicConfig(filename=logfile,
                     datefmt='%H:%M:%S',
                     format='%(asctime)s: %(message)s')
 
+
 class Status:
     def __init__(self, text=None, time=None):
         self.text = text
@@ -34,7 +35,6 @@ def main():
         )
     except Exception as e:
         logging.info('ERR: ' + str(e))
-
 
     startTime = initTime()
 
@@ -73,6 +73,7 @@ def getAcctData():
         print "%s: %s" % (key, value)
     return Odict
 
+
 def initTime():
     # Initialize time
     startTime = datetime.datetime.now()
@@ -81,6 +82,7 @@ def initTime():
     if int(startTime.strftime('%H0%M')) < 3:
         logging.info(startTime.strftime('---   %b %d   ---'))
     return startTime
+
 
 def grabStatuses(t, sn):
     # Grab statuses
@@ -97,6 +99,7 @@ def parseTime(status, startTime):
     strTime = ' '.join(
         status.get('created_at').split(' ')[:4]) + ' ' + str(startTime.year)
     return datetime.datetime.strptime(strTime, '%a %b %d %H:%M:%S %Y')
+
 
 def youngEnough(time, startTime):
     # Measure Tweet's age
