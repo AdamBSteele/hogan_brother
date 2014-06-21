@@ -47,12 +47,14 @@ def main():
         status = Status()
         status.text = tweet.get('text')
         status.time = parseTime(tweet, startTime)
+
         age = startTime - status.time
 
-        if(age.seconds < 180 + (tweetCount * WAIT_PERIOD)):
+        if(age.seconds < 180 + (tweetCount * WAIT_PERIOD) and 
+           status.time.day == startTime.day):
+
             # Remove mention so that we're not annoyting (yet)
             status.text = str(re.sub('@', '', status.text))
-            status.text = status.text + " #DeadFly"
             logAndTweet(t, status, age)
             tweetCount = tweetCount + 1
 
@@ -99,12 +101,6 @@ def parseTime(status, startTime):
     strTime = ' '.join(
         status.get('created_at').split(' ')[:4]) + ' ' + str(startTime.year)
     return datetime.datetime.strptime(strTime, '%a %b %d %H:%M:%S %Y')
-
-
-def youngEnough(time, startTime):
-    # Measure Tweet's age
-    tweet_age = startTime - time
-    return tweet_age.seconds < 180 and startTime.day == time.day
 
 
 def logAndTweet(t, status, age):
