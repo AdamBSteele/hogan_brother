@@ -8,14 +8,6 @@ from time import sleep
 BOT_PATH = 'KOTHPATH'
 WAIT_PERIOD = 17
 
-# Initialize logging
-logfile = os.environ.get(BOT_PATH) + 'log.txt'
-logging.basicConfig(filename=logfile,
-                    level=logging.INFO,
-                    datefmt='%H:%M:%S',
-                    format='%(asctime)s: %(message)s')
-
-
 class Status:
     def __init__(self, text=None, time=None):
         self.text = text
@@ -23,6 +15,14 @@ class Status:
 
 
 def main():
+
+    # Initialize logging
+    logfile = os.environ.get(BOT_PATH) + 'log.txt'
+    logging.basicConfig(filename=logfile,
+                        level=logging.INFO,
+                        datefmt='%H:%M:%S',
+                        format='%(asctime)s: %(message)s')
+
 
     # Get acct info
     acctDict = getAcctData()
@@ -53,8 +53,9 @@ def main():
         if(age.seconds < 180 + (tweetCount * WAIT_PERIOD) and 
            status.time.day == startTime.day):
 
-            # Remove mention so that we're not annoyting (yet)
-            status.text = str(re.sub('@', '', status.text))
+            # Remove mention so that we're not annoying (yet)
+            temp = str(re.sub('@', '', status.text))
+            status.text = temp
             logAndTweet(t, status, age)
             tweetCount = tweetCount + 1
 
